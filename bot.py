@@ -143,9 +143,11 @@ ping_limit_count = "6"
 
 def ping_subprocess(target_host):
     """
-    Construct a ping command with 6 packets, runs it using subprocess.Popen,
-    and capture the output in output and error variables. If there is an error,
-    the function returns an error message with the error text.
+    Construct a ping command with 6 packets.
+
+    Runs it using subprocess.Popen, and capture the output in output and error
+    variables. If there is an error, the function returns an error message
+    with the error text.
     Otherwise, it returns the output in a readable format surrounded by triple
     backticks (```) to indicate code block formatting in Discord.
     """
@@ -245,6 +247,7 @@ async def view_expenses(ctx):
 
 
 ###############################################################################
+
 # Get the Discord bot token from the environment variable
 load_dotenv()
 TOKEN = os.getenv("BOT_TOKEN")
@@ -258,6 +261,4 @@ print("Starting bot server")
 # Run the bot.
 bot.run(TOKEN)
 
-###############################################################################
-###############################################################################
 ###############################################################################
