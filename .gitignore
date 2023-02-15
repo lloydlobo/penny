@@ -1,0 +1,11 @@
+.vscode
+/target
+
+# env variables
+.env
+
+# Penny data
+penny_expenses.csv
+
+# Notes
+.idea.md
