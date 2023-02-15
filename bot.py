@@ -6,6 +6,11 @@ Penny is a no-nonsense budget tracker bot.
 Penny brings the budget CLI experience to Discord using the Discord API.
 
 :license: MIT, see LICENSE for more details.
+
+# TODO:
+
+Feb 15 07:19:40 PM  You should consider upgrading via the
+'/opt/render/project/src/.venv/bin/python -m pip install --upgrade pip' command
 """
 import csv
 import os
