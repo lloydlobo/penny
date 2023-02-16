@@ -224,7 +224,7 @@ async def search_expenses(ctx, term: str):
     if len(matches) == 0:
         await ctx.send(f"No expenses matching '{term}' found")
     else:
-        total_matches_amount = sum(e["amount"] for e in matches)
+        total_matches_amount = sum(float(e["amount"]) for e in matches)
         for expense in matches:
             response = f"[{expense['timestamp']}] {expense['category']}:\
                 {CURRENCY}{expense['amount']} {expense['description']}"
