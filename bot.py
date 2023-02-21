@@ -268,7 +268,7 @@ async def view_expenses(ctx):
     else:
         user_id = ctx.author.id
         get_expenses = db.get_expenses(user_id=user_id)
-        await ctx.send(f"""```@expenses```{get_expenses}""")
+        await ctx.send(f"""```@expenses{get_expenses}```""")
     # else:
     #     total = 0
     #     for expense in EXPENSES:
