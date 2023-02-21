@@ -237,6 +237,7 @@ async def view_expense(ctx):
 
 @bot.command(name="deleteexpense")
 async def delete_expense(ctx, keyword=None):
+    print(ctx, keyword)
     user_id = ctx.author.id
     expenses = db.get_expenses(user_id=user_id)
     if keyword is None:
@@ -250,17 +251,22 @@ async def delete_expense(ctx, keyword=None):
         row_index = await bot.wait_for(
             "message", check=lambda message: message.author == ctx.author
         )
-        expense = expenses[row_index]
-        uuid = (expense)["uuid"]
-        print(row_index, uuid, expense)
-        row_to_delete = (
-            f"{expense['category']}: {expense['amount']} - {expense['description']}"
-        )
-        ctx.send(f"""Deleting: {row_to_delete}\nAre you sure?""")
+        print(row_index)
+        index = int(row_index.content)  # Add error handling if not number...
+        print(index)  # 4 selected
+        print(expenses)
+        expense = expenses[index]
+        uuid = expense[0]  # 1 uuid = (expense)["uuid"]
+        print(uuid, expense)
+        # f"{expense['category']}: {expense['amount']} - {expense['description']}"
+        row_to_delete = f"{expense[3]}: {expense[2]} - {expense[4]}"
+        await ctx.send(f"""Deleting: {row_to_delete}\nAre you sure? (y/n)""")
         is_ok_delete = await bot.wait_for(
             "message", check=lambda message: message.author == ctx.author
         )
-        if is_ok_delete:
+        response = is_ok_delete.content
+        print(response)
+        if response.lower() in ["Y", "y"]:
             if db.delete_expense(user_id=user_id, uuid=uuid):
                 await ctx.send(f"Deleted {row_to_delete}")
     pass

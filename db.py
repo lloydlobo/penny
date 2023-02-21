@@ -45,7 +45,12 @@ class DBHelper:
     def delete_expense(self, user_id, uuid):
         with self.conn:
             print(user_id, uuid)
-        pass
+            expenses = self.search_expense(user_id=user_id, uuid=uuid)
+            if expenses is not None:
+                print(f"{expenses}")
+                return True
+            else:
+                return True
 
     def get_expenses(self, user_id):
         with self.conn:
@@ -57,20 +62,25 @@ class DBHelper:
 
     # We need to search each row for a term.
     # !!!! We can use the databases search feature, but we will use not use it for now.
-    def search_expense(self, user_id, keyword):
+    def search_expense(self, user_id, keyword=None, uuid=None):
         with self.conn:
             expenses = self.get_expenses(user_id=user_id)
-            # matches = []
-            # for row in expenses:
-            #     if keyword.lower() in str(row).lower():
-            #         matches.append(row)
-            matches = [row for row in expenses if keyword.lower()
-                       in str(row).lower()]
-
-            if len(matches) == 0:
-                return None
-            else:
+            if uuid is not None:
+                matches = [row for row in expenses if uuid == row[0]]
                 return matches
+                # if matches[0]["user_id"] == user_id:
+                #     return matches[0]
+            else:
+                if keyword is not None:
+                    matches = [
+                        row for row in expenses if keyword.lower() in str(row).lower()
+                    ]
+                    if len(matches) == 0:
+                        return None
+                    else:
+                        return matches
+                else:
+                    return expenses
 
 
 # pretty, total = [], 0
