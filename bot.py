@@ -49,7 +49,7 @@ intents.members = True
 
 ###############################################################################
 
-EXPENSES = []
+# EXPENSES = []
 INCOME = []
 
 db = DBHelper()
@@ -120,6 +120,25 @@ bot = commands.Bot(command_prefix="/",
 # csv_read_store_expenses(PATH_CSV_EXPENSES)
 # Test add_write_expense function.
 # app_add_write_expense("10", "Food", "Lunch at Subway")
+
+###############################################################################
+
+
+def pretty_expense_row(row):
+    date, category, amount, description = (
+        row[5],
+        row[3],
+        row[2],
+        row[4],
+    )
+    data = [
+        date,
+        category,
+        str(amount),
+        description,
+    ]
+    return " ".join(data)
+
 
 ###############################################################################
 
@@ -210,7 +229,7 @@ async def add_expense(ctx, amount: float, category: str, description: str):
         "timestamp": datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
     }
 
-    EXPENSES.append(expense)
+    # EXPENSES.append(expense)
     # csv_write_expenses(PATH_CSV_EXPENSES)
     db.add_expense(
         uuid=expense["id"],
@@ -222,17 +241,17 @@ async def add_expense(ctx, amount: float, category: str, description: str):
     await ctx.send(f"New expense added: {CURRENCY}{amount} in {category} category")
 
 
-@bot.command(name="viewexpense")
-async def view_expense(ctx):
-    """View a rnadom expense in your budget."""
-    rand = random.choice(range(0, len(EXPENSES)))
-    counter = 0
-    for expense in EXPENSES:
-        if counter == rand:
-            await ctx.send(
-                f"Random expense: {expense['description']} - {expense['amount']}{CURRENCY}"
-            )
-        counter += 1
+# @bot.command(name="viewexpense")
+# async def view_expense(ctx):
+#     """View a rnadom expense in your budget."""
+#     rand = random.choice(range(0, len(EXPENSES)))
+#     counter = 0
+# for expense in EXPENSES:
+#     if counter == rand:
+#         await ctx.send(
+#             f"Random expense: {expense['description']} - {expense['amount']}{CURRENCY}"
+#         )
+#     counter += 1
 
 
 @bot.command(name="deleteexpense")
@@ -240,35 +259,37 @@ async def delete_expense(ctx, keyword=None):
     expenses = db.get_expenses(user_id=ctx.author.id)
     if keyword is None:
         counter = 0
-        await ctx.send(f"Select the (row) to delete")
+        pretty_expenses = []
         for row in expenses:
-            await ctx.send(f"({counter}). {str(row)}")
+            expense = f"({counter}). {str(pretty_expense_row(row=row))}"
+            pretty_expenses.append(expense)
             counter += 1
 
+        await ctx.send(f"Select the (row) to delete")
+        message = "\n".join(pretty_expenses)
+        await ctx.send(f"""```{message}```""")
         row_index = await bot.wait_for(
             "message",
             check=lambda message: message.author == ctx.author,
         )
+
         index = int(row_index.content)  # Add error handling if not number...
-        expense = expenses[index]
-        row_to_delete = f"{expense[3]}: {expense[2]} - {expense[4]}"
-        # f"{expense['category']}: {expense['amount']} - {expense['description']}"
+        row_to_delete = pretty_expense_row(row=expenses[index])
 
         await ctx.send(f"""Deleting: {row_to_delete}\nAre you sure? (y/n)""")
         is_ok_delete = await bot.wait_for(
             "message",
             check=lambda message: message.author == ctx.author,
         )
+
         if (is_ok_delete.content).lower() in ["Y", "y"]:
-            if db.delete_expense(user_id=ctx.author.id, uuid=expense[0]):
+            if db.delete_expense(user_id=ctx.author.id, uuid=(expenses[index])[0]):
                 await ctx.send(f"Deleted {row_to_delete}")
         else:
             await ctx.send(f"Error: Something went wrong")
     pass
 
 
-# matches = [e for e in expenses if keyword.lower() in str(e).lower]
-# result = f
 @bot.command(name="searchexpenses")
 async def search_expenses(ctx, keyword: str):
     matches = db.search_expense(user_id=ctx.author.id, keyword=keyword)
@@ -277,8 +298,7 @@ async def search_expenses(ctx, keyword: str):
     else:
         matches_pretty = []
         for row in matches:
-            date, category, amount, description = row[5], row[3], row[2], row[4]
-            expense = " ".join([date, category, str(amount), description])
+            expense = pretty_expense_row(row)
             matches_pretty.append(expense)
 
         body = "\n".join(matches_pretty)
