@@ -23,14 +23,39 @@ import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 
+from db import DBHelper
+
 
 ###############################################################################
 
+# Help usage description.
+DESCRIPTION = """
+Hello! I am Penny, your no-nonsense budget tracker bot.
+
+Trained for Discord, I am here to keep you in line with your finance and
+respond to your commands and generate text based on your inputs.
+Feel free to use the '?help' command to see the list of available commands and
+how to use them. Remember, a penny saved is a penny earned!
+
+Here are some of the things I can do:
+"""
+
 CURRENCY = "$"
+
 PATH_CSV_EXPENSES = "penny_expenses.csv"
 
-expenses = []
-income = []
+intents = discord.Intents.default()
+intents.message_content = True
+intents.members = True
+
+###############################################################################
+
+EXPENSES = []
+INCOME = []
+
+db = DBHelper()
+db.setup()
+bot = commands.Bot(command_prefix="/", description=DESCRIPTION, intents=intents)
 
 ###############################################################################
 
@@ -45,7 +70,7 @@ def csv_read_store_expenses(path):
         # csv_reader = csv.reader(csv_file, delimiter=" ", quotechar="|")
         csv_reader = csv.DictReader(csv_file)
         for row in csv_reader:
-            expenses.append(row)
+            EXPENSES.append(row)
     pass
 
 
@@ -73,7 +98,7 @@ def csv_write_expenses(path):
         ]
         csv_writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
         csv_writer.writeheader()
-        for expense in expenses:
+        for expense in EXPENSES:
             csv_writer.writerow(expense)
     pass
 
@@ -86,7 +111,7 @@ def app_add_write_expense(amount, category, description):
         "description": description,
         "timestamp": datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
     }
-    expenses.append(expense)
+    EXPENSES.append(expense)
     csv_write_expenses(PATH_CSV_EXPENSES)
     pass
 
@@ -95,32 +120,6 @@ def app_add_write_expense(amount, category, description):
 csv_read_store_expenses(PATH_CSV_EXPENSES)
 # Test add_write_expense function.
 # app_add_write_expense("10", "Food", "Lunch at Subway")
-
-###############################################################################
-
-description = """
-Hello! I am Penny, your no-nonsense budget tracker bot.
-
-Trained for Discord, I am here to keep you in line with your finance and
-respond to your commands and generate text based on your inputs.
-Feel free to use the '?help' command to see the list of available commands and
-how to use them. Remember, a penny saved is a penny earned!
-
-Here are some of the things I can do:
-"""
-
-intents = discord.Intents.default()
-intents.message_content = True
-intents.members = True
-
-bot = commands.Bot(
-    # Char prefix to invoke the bot.
-    command_prefix="?",
-    # Help usage description.
-    description=description,
-    # Intents
-    intents=intents,
-)
 
 ###############################################################################
 
@@ -138,6 +137,24 @@ async def on_ready():
 async def on_command_error(ctx, error):
     """Inform user when a command raise an error."""
     await ctx.send(f"An error occurred: {str(error)}")
+
+
+@bot.command()
+@commands.is_owner()
+async def shutdown(ctx):
+    """
+    Log out the bot and disconnect it from the Discord API.
+
+    This command can only be used by the owner of the bot.
+    Once executed, the bot will be shut down and no longer respond to commands.
+
+    Usage: ?shutdown
+
+    Example:
+        ?shutdown
+
+    """
+    await ctx.bot.logout()
 
 
 ###############################################################################
@@ -167,15 +184,16 @@ def ping_subprocess(target_host):
 
 
 @bot.command()
-async def ping(ctx, target):
+async def ping(ctx, target=None):
     """
     Ping the bot to test if it's responding.
 
     ?ping archlinux.org
     """
     await ctx.send("Pong!")
-    response = ping_subprocess(target)
-    await ctx.send(response)
+    # response = ping_subprocess(target)
+    # await ctx.send(response)
+    pass
 
 
 ###############################################################################
@@ -192,17 +210,24 @@ async def add_expense(ctx, amount: float, category: str, description: str):
         "timestamp": datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
     }
 
-    expenses.append(expense)
+    EXPENSES.append(expense)
     csv_write_expenses(PATH_CSV_EXPENSES)
+    db.add_expense(
+        ctx.author.id,
+        expense["amount"],
+        expense["category"],
+        description=expense["description"],
+        date=expense["timestamp"],
+    )
     await ctx.send(f"New expense added: {CURRENCY}{amount} in {category} category")
 
 
 @bot.command(name="view-expense")
 async def view_expense(ctx):
     """View a rnadom expense in your budget."""
-    rand = random.choice(range(0, len(expenses)))
+    rand = random.choice(range(0, len(EXPENSES)))
     counter = 0
-    for expense in expenses:
+    for expense in EXPENSES:
         if counter == rand:
             await ctx.send(
                 f"Random expense: {expense['description']} - {expense['amount']}{CURRENCY}"
@@ -220,7 +245,7 @@ async def search_expenses(ctx, term: str):
     case-insensitive string comparison). Send a message to the user with any
     matching expenses, total amount, and a timestamp for each expense.
     """
-    matches = [e for e in expenses if term.lower() in str(e).lower()]
+    matches = [e for e in EXPENSES if term.lower() in str(e).lower()]
     if len(matches) == 0:
         await ctx.send(f"No expenses matching '{term}' found")
     else:
@@ -238,11 +263,11 @@ async def search_expenses(ctx, term: str):
 async def view_expenses(ctx):
     """View all expenses in your budget."""
     # fmt_time = expense["timestamp"].strftime("%v %d %y %I:%M:%S %p")
-    if len(expenses) == 0:
+    if len(EXPENSES) == 0:
         await ctx.send("No expenses recorded")
     else:
         total = 0
-        for expense in expenses:
+        for expense in EXPENSES:
             total += float(expense["amount"])
             await ctx.send(
                 f"[{expense['timestamp']}] {expense['category']}: {CURRENCY}{expense['amount']} - {expense['description']}"

@@ -1,11 +1,27 @@
+# Editor settings, configs.
 .vscode
+
+# Byte-compiled / optimized / DLL files.
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Cargo build target, Rust.
 /target
 
-# env variables
+# Secrets env variables
+# CREDENTIALS.py
 .env
 
-# Penny data
+# Database Files.
+*.sqlite
+*.db
 penny_expenses.csv
 
-# Notes
-.idea.md
+# Notes, Ideas.
+# - to blacklist.
+*.md
+# - to allow.
+!README.md 
+
+
