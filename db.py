@@ -27,9 +27,9 @@ class DBHelper:
     def setup(self):
         with self.conn:
             c = self.conn.cursor()
+            # id INTEGER,
             stmt = """
             CREATE TABLE IF NOT EXISTS expenses (
-                id INTEGER, 
                 user_id INTEGER, 
                 amount REAL, 
                 category TEXT, 
@@ -40,7 +40,7 @@ class DBHelper:
             c.execute(stmt)
         pass
 
-    def add_expense(self, user_id, amount, category, description, date):
+    def add_expense(self, user_id, amount, category, description):
         with self.conn:
             c = self.conn.cursor()
             stmt = """
@@ -49,6 +49,6 @@ class DBHelper:
             """
             c.execute(
                 stmt,
-                (user_id, amount, category, description, date),
+                (user_id, amount, category, description),
             )
         pass
