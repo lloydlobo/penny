@@ -57,5 +57,6 @@ class DBHelper:
         with self.conn:
             c = self.conn.cursor()
             stmt = """SELECT * FROM expenses WHERE user_id=?"""
-            c.execute(stmt, (user_id,))  # Use `,` if only one tuple kind of field.
+            c.execute(stmt, (user_id,)
+                      )  # Use `,` if only one tuple kind of field.
             return c.fetchall()
