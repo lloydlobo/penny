@@ -238,7 +238,7 @@ async def view_expense(ctx):
 # matches = [e for e in expenses if keyword.lower() in str(e).lower]
 # result = f
 @bot.command(name="searchexpenses")
-async def search(ctx, keyword: str):
+async def search_expenses(ctx, keyword: str):
     matches = db.search_expense(user_id=ctx.author.id, keyword=keyword)
     if matches is None:
         await ctx.send("No expenses matching '{keyword}' found")
@@ -260,31 +260,6 @@ async def search(ctx, keyword: str):
                 f"```@expenses: {count} results found for {keyword}\n{body}```"
             )
     pass
-
-
-@bot.command(name="search-expenses")
-async def search_expenses(ctx, term: str):
-    """
-    Search expenses based on a term.
-
-    Takes a term argument which is used to filter the expenses list based on
-    any field that matches the search term (using the in operator and
-    case-insensitive string comparison). Send a message to the user with any
-    matching expenses, total amount, and a timestamp for each expense.
-    """
-    matches = [e for e in EXPENSES if term.lower() in str(e).lower()]
-    if len(matches) == 0:
-        await ctx.send(f"No expenses matching '{term}' found")
-    else:
-        total_matches_amount = sum(float(e["amount"]) for e in matches)
-        for expense in matches:
-            response = f"[{expense['timestamp']}] {expense['category']}:\
-                {CURRENCY}{expense['amount']} {expense['description']}"
-
-            await ctx.send(response)
-        await ctx.send(
-            f"Total expenses({len(matches)}): {CURRENCY}{total_matches_amount}"
-        )
 
 
 @bot.command(name="view-expenses")
@@ -334,3 +309,28 @@ print("Starting bot server")
 bot.run(TOKEN)
 
 ###############################################################################
+
+# @bot.command(name="search-expenses")
+# async def search_expenses(ctx, term: str):
+#     """
+#     Search expenses based on a term.
+#
+#     Takes a term argument which is used to filter the expenses list based on
+#     any field that matches the search term (using the in operator and
+#     case-insensitive string comparison). Send a message to the user with any
+#     matching expenses, total amount, and a timestamp for each expense.
+#     """
+#     matches = [e for e in EXPENSES if term.lower() in str(e).lower()]
+#     if len(matches) == 0:
+#         await ctx.send(f"No expenses matching '{term}' found")
+#     else:
+#         total_matches_amount = sum(float(e["amount"]) for e in matches)
+#         for expense in matches:
+#             response = f"[{expense['timestamp']}] {expense['category']}:\
+#                 {CURRENCY}{expense['amount']} {expense['description']}"
+#
+#             await ctx.send(response)
+#         await ctx.send(
+#             f"Total expenses({len(matches)}): {CURRENCY}{total_matches_amount}"
+#         )
+#
