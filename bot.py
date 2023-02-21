@@ -54,9 +54,7 @@ INCOME = []
 
 db = DBHelper()
 db.setup()
-bot = commands.Bot(command_prefix="/",
-                   description=DESCRIPTION,
-                   intents=intents)
+bot = commands.Bot(command_prefix="/", description=DESCRIPTION, intents=intents)
 
 ###############################################################################
 
@@ -174,9 +172,7 @@ def ping_subprocess(target_host):
     backticks (```) to indicate code block formatting in Discord.
     """
     cmd = ["ping", "-c", ping_limit_count, target_host]  # Ping 6 times.
-    process = subprocess.Popen(cmd,
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE)
+    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output, error = process.communicate()
 
     if error:
@@ -221,8 +217,7 @@ async def add_expense(ctx, amount: float, category: str, description: str):
         category=expense["category"],
         description=expense["description"],
     )
-    await ctx.send(
-        f"New expense added: {CURRENCY}{amount} in {category} category")
+    await ctx.send(f"New expense added: {CURRENCY}{amount} in {category} category")
 
 
 @bot.command(name="view-expense")
@@ -236,6 +231,19 @@ async def view_expense(ctx):
                 f"Random expense: {expense['description']} - {expense['amount']}{CURRENCY}"
             )
         counter += 1
+
+
+def search(term: str):
+    db_expenses = []
+    matches = [e for e in db_expenses if term.lower() in str(e).lower()]
+    if len(matches) == 0:
+        print(f"No expenses matching '{term}' found")
+    else:
+        # total_matches = sum(float(e["amount"]) for e in matches)
+        total_matches = sum(float(e[2]) for e in matches)
+        print(matches, total_matches)
+        pass
+    pass
 
 
 @bot.command(name="search-expenses")
