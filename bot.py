@@ -25,7 +25,6 @@ from dotenv import load_dotenv
 
 from db import DBHelper
 
-
 ###############################################################################
 
 # Help usage description.
@@ -55,7 +54,9 @@ INCOME = []
 
 db = DBHelper()
 db.setup()
-bot = commands.Bot(command_prefix="/", description=DESCRIPTION, intents=intents)
+bot = commands.Bot(command_prefix="/",
+                   description=DESCRIPTION,
+                   intents=intents)
 
 ###############################################################################
 
@@ -159,7 +160,6 @@ async def shutdown(ctx):
 
 ###############################################################################
 
-
 ping_limit_count = "6"
 
 
@@ -174,7 +174,9 @@ def ping_subprocess(target_host):
     backticks (```) to indicate code block formatting in Discord.
     """
     cmd = ["ping", "-c", ping_limit_count, target_host]  # Ping 6 times.
-    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    process = subprocess.Popen(cmd,
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
     output, error = process.communicate()
 
     if error:
@@ -219,7 +221,8 @@ async def add_expense(ctx, amount: float, category: str, description: str):
         category=expense["category"],
         description=expense["description"],
     )
-    await ctx.send(f"New expense added: {CURRENCY}{amount} in {category} category")
+    await ctx.send(
+        f"New expense added: {CURRENCY}{amount} in {category} category")
 
 
 @bot.command(name="view-expense")
@@ -253,6 +256,7 @@ async def search_expenses(ctx, term: str):
         for expense in matches:
             response = f"[{expense['timestamp']}] {expense['category']}:\
                 {CURRENCY}{expense['amount']} {expense['description']}"
+
             await ctx.send(response)
         await ctx.send(
             f"Total expenses({len(matches)}): {CURRENCY}{total_matches_amount}"

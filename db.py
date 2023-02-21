@@ -30,10 +30,10 @@ class DBHelper:
             stmt = """
             CREATE TABLE IF NOT EXISTS expenses (
                 uuid TEXT,
-                user_id INTEGER, 
-                amount REAL, 
-                category TEXT, 
-                description TEXT, 
+                user_id INTEGER,
+                amount REAL,
+                category TEXT,
+                description TEXT,
                 date TEXT
                 )
             """
@@ -44,7 +44,7 @@ class DBHelper:
         with self.conn:
             c = self.conn.cursor()
             stmt = """
-            INSERT INTO expenses ( uuid, user_id, amount, category, description, date) 
+            INSERT INTO expenses ( uuid, user_id, amount, category, description, date)
                 VALUES (?, ?, ?, ?, ?, datetime('now', 'localtime'))
             """
             c.execute(
@@ -57,5 +57,6 @@ class DBHelper:
         with self.conn:
             c = self.conn.cursor()
             stmt = """SELECT * FROM expenses WHERE user_id=?"""
-            c.execute(stmt, (user_id,))  # Use `,` if only one tuple kind of field.
+            c.execute(stmt,
+                      (user_id, ))  # Use `,` if only one tuple kind of field.
             return c.fetchall()
