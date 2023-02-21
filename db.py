@@ -74,7 +74,7 @@ class DBHelper:
             if len(matches_pretty) == 0:
                 return None
             else:
-                return matches_data
+                return matches_pretty
 
 
 # pretty, total = [], 0
