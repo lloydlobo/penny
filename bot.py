@@ -25,7 +25,6 @@ from dotenv import load_dotenv
 
 from db import DBHelper
 
-
 ###############################################################################
 
 # Help usage description.
@@ -55,7 +54,9 @@ INCOME = []
 
 db = DBHelper()
 db.setup()
-bot = commands.Bot(command_prefix="/", description=DESCRIPTION, intents=intents)
+bot = commands.Bot(command_prefix="/",
+                   description=DESCRIPTION,
+                   intents=intents)
 
 ###############################################################################
 
@@ -96,10 +97,10 @@ def csv_write_expenses(path):
             "description",
             "timestamp",
         ]
-        csv_writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
-        csv_writer.writeheader()
-        for expense in EXPENSES:
-            csv_writer.writerow(expense)
+        # csv_writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+        # csv_writer.writeheader()
+        # for expense in EXPENSES:
+        #     csv_writer.writerow(expense)
     pass
 
 
@@ -112,12 +113,12 @@ def app_add_write_expense(amount, category, description):
         "timestamp": datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
     }
     EXPENSES.append(expense)
-    csv_write_expenses(PATH_CSV_EXPENSES)
+    # csv_write_expenses(PATH_CSV_EXPENSES)
     pass
 
 
 # Read expenses from the CSV file and store them in the list of expenses.
-csv_read_store_expenses(PATH_CSV_EXPENSES)
+# csv_read_store_expenses(PATH_CSV_EXPENSES)
 # Test add_write_expense function.
 # app_add_write_expense("10", "Food", "Lunch at Subway")
 
@@ -159,7 +160,6 @@ async def shutdown(ctx):
 
 ###############################################################################
 
-
 ping_limit_count = "6"
 
 
@@ -174,7 +174,9 @@ def ping_subprocess(target_host):
     backticks (```) to indicate code block formatting in Discord.
     """
     cmd = ["ping", "-c", ping_limit_count, target_host]  # Ping 6 times.
-    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    process = subprocess.Popen(cmd,
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
     output, error = process.communicate()
 
     if error:
@@ -211,15 +213,16 @@ async def add_expense(ctx, amount: float, category: str, description: str):
     }
 
     EXPENSES.append(expense)
-    csv_write_expenses(PATH_CSV_EXPENSES)
+    # csv_write_expenses(PATH_CSV_EXPENSES)
     db.add_expense(
-        ctx.author.id,
-        expense["amount"],
-        expense["category"],
+        uuid=expense["id"],
+        user_id=ctx.author.id,
+        amount=expense["amount"],
+        category=expense["category"],
         description=expense["description"],
-        date=expense["timestamp"],
     )
-    await ctx.send(f"New expense added: {CURRENCY}{amount} in {category} category")
+    await ctx.send(
+        f"New expense added: {CURRENCY}{amount} in {category} category")
 
 
 @bot.command(name="view-expense")
@@ -253,6 +256,7 @@ async def search_expenses(ctx, term: str):
         for expense in matches:
             response = f"[{expense['timestamp']}] {expense['category']}:\
                 {CURRENCY}{expense['amount']} {expense['description']}"
+
             await ctx.send(response)
         await ctx.send(
             f"Total expenses({len(matches)}): {CURRENCY}{total_matches_amount}"
@@ -262,18 +266,32 @@ async def search_expenses(ctx, term: str):
 @bot.command(name="view-expenses")
 async def view_expenses(ctx):
     """View all expenses in your budget."""
+    expenses = db.get_expenses(user_id=ctx.author.id)
+
+    pretty = []
+    total = 0
+    for e in expenses:
+        date, category, amount, description = e[5], e[3], e[2], e[4]
+        pretty.append(" ".join([date, category, str(amount), description]))
+        total += float(amount)
+
+    counter = len(pretty)
+    pretty_expenses = "\n".join(pretty)
+    await ctx.send(f"Total expenses({str(counter)}): {str(total)}{CURRENCY}")
+    await ctx.send(f"""```@expenses\n{pretty_expenses}```""")
+
     # fmt_time = expense["timestamp"].strftime("%v %d %y %I:%M:%S %p")
-    if len(EXPENSES) == 0:
-        await ctx.send("No expenses recorded")
-    else:
-        total = 0
-        for expense in EXPENSES:
-            total += float(expense["amount"])
-            await ctx.send(
-                f"[{expense['timestamp']}] {expense['category']}: {CURRENCY}{expense['amount']} - {expense['description']}"
-            )
-        await ctx.send(f"Total expenses: {str(total)}{CURRENCY}")
-        # await ctx.send(f"Your Expenses \n{str(expenses)}")
+    # if len(EXPENSES) == 0:
+    #     await ctx.send("No expenses recorded")
+    # else:
+    #     total = 0
+    #     for expense in EXPENSES:
+    #         total += float(expense["amount"])
+    #         await ctx.send(
+    #             f"[{expense['timestamp']}] {expense['category']}: {CURRENCY}{expense['amount']} - {expense['description']}"
+    #         )
+    #     await ctx.send(f"Total expenses: {str(total)}{CURRENCY}")
+    #     # await ctx.send(f"Your Expenses \n{str(expenses)}")
 
 
 ###############################################################################
