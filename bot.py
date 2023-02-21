@@ -262,13 +262,12 @@ async def search_expenses(ctx, term: str):
 @bot.command(name="view-expenses")
 async def view_expenses(ctx):
     """View all expenses in your budget."""
+    user_id = ctx.author.id
+    get_expenses = db.get_expenses(user_id=user_id)
+    await ctx.send(f"""```@expenses{get_expenses}```""")
     # fmt_time = expense["timestamp"].strftime("%v %d %y %I:%M:%S %p")
-    if len(EXPENSES) == 0:
-        await ctx.send("No expenses recorded")
-    else:
-        user_id = ctx.author.id
-        get_expenses = db.get_expenses(user_id=user_id)
-        await ctx.send(f"""```@expenses{get_expenses}```""")
+    # if len(EXPENSES) == 0:
+    #     await ctx.send("No expenses recorded")
     # else:
     #     total = 0
     #     for expense in EXPENSES:
