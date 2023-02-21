@@ -50,7 +50,7 @@ class DBHelper:
                 print(f"{expenses}")
                 return True
             else:
-                return True
+                return False
 
     def get_expenses(self, user_id):
         with self.conn:

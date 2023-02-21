@@ -237,38 +237,33 @@ async def view_expense(ctx):
 
 @bot.command(name="deleteexpense")
 async def delete_expense(ctx, keyword=None):
-    print(ctx, keyword)
-    user_id = ctx.author.id
-    expenses = db.get_expenses(user_id=user_id)
+    expenses = db.get_expenses(user_id=ctx.author.id)
     if keyword is None:
         counter = 0
         await ctx.send(f"Select the (row) to delete")
         for row in expenses:
             await ctx.send(f"({counter}). {str(row)}")
             counter += 1
-        pass
 
         row_index = await bot.wait_for(
-            "message", check=lambda message: message.author == ctx.author
+            "message",
+            check=lambda message: message.author == ctx.author,
         )
-        print(row_index)
         index = int(row_index.content)  # Add error handling if not number...
-        print(index)  # 4 selected
-        print(expenses)
         expense = expenses[index]
-        uuid = expense[0]  # 1 uuid = (expense)["uuid"]
-        print(uuid, expense)
-        # f"{expense['category']}: {expense['amount']} - {expense['description']}"
         row_to_delete = f"{expense[3]}: {expense[2]} - {expense[4]}"
+        # f"{expense['category']}: {expense['amount']} - {expense['description']}"
+
         await ctx.send(f"""Deleting: {row_to_delete}\nAre you sure? (y/n)""")
         is_ok_delete = await bot.wait_for(
-            "message", check=lambda message: message.author == ctx.author
+            "message",
+            check=lambda message: message.author == ctx.author,
         )
-        response = is_ok_delete.content
-        print(response)
-        if response.lower() in ["Y", "y"]:
-            if db.delete_expense(user_id=user_id, uuid=uuid):
+        if (is_ok_delete.content).lower() in ["Y", "y"]:
+            if db.delete_expense(user_id=ctx.author.id, uuid=expense[0]):
                 await ctx.send(f"Deleted {row_to_delete}")
+        else:
+            await ctx.send(f"Error: Something went wrong")
     pass
 
 
