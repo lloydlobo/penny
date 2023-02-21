@@ -233,17 +233,21 @@ async def view_expense(ctx):
         counter += 1
 
 
-def search(term: str):
-    db_expenses = []
-    matches = [e for e in db_expenses if term.lower() in str(e).lower()]
-    if len(matches) == 0:
-        print(f"No expenses matching '{term}' found")
+# matches = [e for e in expenses if keyword.lower() in str(e).lower]
+# result = f@bot.command(name="searchexpenses")
+async def search(ctx, keyword: str):
+    matches = db.search_expense(user_id=ctx.author.id, keyword=keyword)
+    if matches is not None:
+        count = len(matches)
+        body = "\n".join(matches)
+        await ctx.send(
+            f"""```@expenses
+            {count} results found for keyword matching {keyword}
+            {body}
+            ```"""
+        )
     else:
-        # total_matches = sum(float(e["amount"]) for e in matches)
-        total_matches = sum(float(e[2]) for e in matches)
-        print(matches, total_matches)
-        pass
-    pass
+        await ctx.send("No expenses matching '{keyword}' found")
 
 
 @bot.command(name="search-expenses")

@@ -51,36 +51,55 @@ class DBHelper:
         with self.conn:
             c = self.conn.cursor()
             stmt = """SELECT * FROM expenses WHERE user_id=?"""
-            c.execute(stmt, (user_id,)
-                      )  # Use `,` if only one tuple kind of field.
+            c.execute(stmt, (user_id,))  # Use `,` if only one tuple kind of field.
             return c.fetchall()
 
+    # We need to search each row for a term.
+    # !!!! We can use the databases search feature, but we will use not use it for now.
     def search_expense(self, user_id, keyword):
-        result = ""
         with self.conn:
-            # We will get all the expenses.
             expenses = self.get_expenses(user_id=user_id)
-            matches = [e for e in expenses if keyword.lower() in str(e).lower]
-            if len(matches) == 0:
-                result = f"No expenses matching '{keyword}' found"
+            print(expenses)
+
+            matches_data, matches_pretty, total = [], [], 0
+            for row in expenses:
+                date, category, amount, description = row[5], row[3], row[2], row[4]
+                expense = " ".join([date, category, str(amount), description])
+                if keyword.lower() in str(expense).lower():
+                    total += float(amount)
+                    matches_data.append(row)
+                    matches_pretty.append(expense)
+                pass
+
+            if len(matches_pretty) == 0:
+                return None
             else:
-                # We need to search each row for a term.
-                #    We can use the databases search feature, but we will use not use it for now.
-                result = f""
-        result = result.strip().upper
-        return result
+                return matches_data
 
-        # print(user_id, search_term)
-        # pass
 
-    # def search(term: str):
-    #     db_expenses = []
-    #     matches = [e for e in db_expenses if term.lower() in str(e).lower()]
-    #     if len(matches) == 0:
-    #         print(f"No expenses matching '{term}' found")
-    #     else:
-    #         # total_matches = sum(float(e["amount"]) for e in matches)
-    #         total_matches = sum(float(e[2]) for e in matches)
-    #         print(matches, total_matches)
-    #         pass
-    #     pass
+# pretty, total = [], 0
+# for e in expenses:
+#     date, category, amount, description = e[5], e[3], e[2], e[4]
+#     pretty.append(" ".join([date, category, str(amount), description]))
+#     total += float(amount)
+# counter = len(pretty)
+# pretty_expenses = "\n".join(pretty)
+# await ctx.send( f"Total expenses({str(counter)}): {str(total)}{CURRENCY}")
+# await ctx.send(f"""```@expenses\n{pretty_expenses}```""")
+# print(matches_pretty)
+# result = str(matches_pretty)
+# return result
+
+# print(user_id, search_term)
+# pass
+# def search(term: str):
+#     db_expenses = []
+#     matches = [e for e in db_expenses if term.lower() in str(e).lower()]
+#     if len(matches) == 0:
+#         print(f"No expenses matching '{term}' found")
+#     else:
+#         # total_matches = sum(float(e["amount"]) for e in matches)
+#         total_matches = sum(float(e[2]) for e in matches)
+#         print(matches, total_matches)
+#         pass
+#     pass
