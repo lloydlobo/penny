@@ -25,7 +25,6 @@ from dotenv import load_dotenv
 
 from db import DBHelper
 
-
 ###############################################################################
 
 # Help usage description.
