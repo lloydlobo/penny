@@ -33,7 +33,7 @@ class DBHelper:
         with self.conn:
             c = self.conn.cursor()
             stmt = """
-            INSERT INTO expenses ( uuid, user_id, amount, category, description, date)
+            INSERT INTO expenses (uuid, user_id, amount, category, description, date)
                 VALUES (?, ?, ?, ?, ?, datetime('now', 'localtime'))
             """
             c.execute(
@@ -44,20 +44,21 @@ class DBHelper:
 
     def delete_expense(self, user_id, uuid):
         with self.conn:
-            print(user_id, uuid)
-            expenses = self.search_expense(user_id=user_id, uuid=uuid)
-            if expenses is not None:
-                print(f"{expenses}")
-                return True
-            else:
-                return False
+            # print(user_id, uuid)
+            # expenses = self.search_expense(user_id=user_id, uuid=uuid)
+            # if expenses is not None:
+            #     print(f"{expenses}")
+            # else:
+            #     return False
+            c = self.conn.cursor()
+            c.execute("DELETE FROM expenses WHERE uuid=?", (uuid,))
+            return True
 
     def get_expenses(self, user_id):
         with self.conn:
             c = self.conn.cursor()
             stmt = """SELECT * FROM expenses WHERE user_id=?"""
-            c.execute(stmt, (user_id,)
-                      )  # Use `,` if only one tuple kind of field.
+            c.execute(stmt, (user_id,))  # Use `,` if only one tuple kind of field.
             return c.fetchall()
 
     # We need to search each row for a term.
