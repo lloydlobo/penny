@@ -55,7 +55,8 @@ INCOME = []
 
 db = DBHelper()
 db.setup()
-bot = commands.Bot(command_prefix="/", description=DESCRIPTION, intents=intents)
+bot = commands.Bot(command_prefix="/",
+                   description=DESCRIPTION, intents=intents)
 
 ###############################################################################
 
@@ -96,10 +97,10 @@ def csv_write_expenses(path):
             "description",
             "timestamp",
         ]
-        csv_writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
-        csv_writer.writeheader()
-        for expense in EXPENSES:
-            csv_writer.writerow(expense)
+        # csv_writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+        # csv_writer.writeheader()
+        # for expense in EXPENSES:
+        #     csv_writer.writerow(expense)
     pass
 
 
@@ -112,12 +113,12 @@ def app_add_write_expense(amount, category, description):
         "timestamp": datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
     }
     EXPENSES.append(expense)
-    csv_write_expenses(PATH_CSV_EXPENSES)
+    # csv_write_expenses(PATH_CSV_EXPENSES)
     pass
 
 
 # Read expenses from the CSV file and store them in the list of expenses.
-csv_read_store_expenses(PATH_CSV_EXPENSES)
+# csv_read_store_expenses(PATH_CSV_EXPENSES)
 # Test add_write_expense function.
 # app_add_write_expense("10", "Food", "Lunch at Subway")
 
@@ -174,7 +175,8 @@ def ping_subprocess(target_host):
     backticks (```) to indicate code block formatting in Discord.
     """
     cmd = ["ping", "-c", ping_limit_count, target_host]  # Ping 6 times.
-    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    process = subprocess.Popen(
+        cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output, error = process.communicate()
 
     if error:
@@ -211,7 +213,7 @@ async def add_expense(ctx, amount: float, category: str, description: str):
     }
 
     EXPENSES.append(expense)
-    csv_write_expenses(PATH_CSV_EXPENSES)
+    # csv_write_expenses(PATH_CSV_EXPENSES)
     db.add_expense(
         ctx.author.id,
         expense["amount"],
