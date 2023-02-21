@@ -2,6 +2,7 @@ import sqlite3
 
 
 class DBHelper:
+
     def __init__(self, dbname="db_penny.sqlite"):
         self.dbname = dbname
         self.conn = sqlite3.connect(self.dbname)  # self.conn = None
@@ -51,14 +52,15 @@ class DBHelper:
             # else:
             #     return False
             c = self.conn.cursor()
-            c.execute("DELETE FROM expenses WHERE uuid=?", (uuid,))
+            c.execute("DELETE FROM expenses WHERE uuid=?", (uuid, ))
             return True
 
     def get_expenses(self, user_id):
         with self.conn:
             c = self.conn.cursor()
             stmt = """SELECT * FROM expenses WHERE user_id=?"""
-            c.execute(stmt, (user_id,))  # Use `,` if only one tuple kind of field.
+            c.execute(stmt,
+                      (user_id, ))  # Use `,` if only one tuple kind of field.
             return c.fetchall()
 
     # We need to search each row for a term.
@@ -74,7 +76,8 @@ class DBHelper:
             else:
                 if keyword is not None:
                     matches = [
-                        row for row in expenses if keyword.lower() in str(row).lower()
+                        row for row in expenses
+                        if keyword.lower() in str(row).lower()
                     ]
                     if len(matches) == 0:
                         return None
