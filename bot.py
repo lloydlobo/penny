@@ -234,7 +234,8 @@ async def view_expense(ctx):
 
 
 # matches = [e for e in expenses if keyword.lower() in str(e).lower]
-# result = f@bot.command(name="searchexpenses")
+# result = f
+@bot.command(name="searchexpenses")
 async def search(ctx, keyword: str):
     matches = db.search_expense(user_id=ctx.author.id, keyword=keyword)
     if matches is not None:
