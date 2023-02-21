@@ -12,7 +12,7 @@ Penny brings the budget CLI experience to Discord using the Discord API.
 Feb 15 07:19:40 PM  You should consider upgrading via the
 '/opt/render/project/src/.venv/bin/python -m pip install --upgrade pip' command
 """
-import csv
+# import csv
 import os
 import random
 import subprocess
@@ -60,61 +60,61 @@ bot = commands.Bot(command_prefix="/",
 ###############################################################################
 
 
-def csv_read_store_expenses(path):
-    """
-    Read expenses from the CSV file.
+# def csv_read_store_expenses(path):
+#     """
+#     Read expenses from the CSV file.
+#
+#     Store them in a list of dictionaries.
+#     """
+#     with open(path, "r") as csv_file:
+#         # csv_reader = csv.reader(csv_file, delimiter=" ", quotechar="|")
+#         csv_reader = csv.DictReader(csv_file)
+#         for row in csv_reader:
+#             EXPENSES.append(row)
+#     pass
 
-    Store them in a list of dictionaries.
-    """
-    with open(path, "r") as csv_file:
-        # csv_reader = csv.reader(csv_file, delimiter=" ", quotechar="|")
-        csv_reader = csv.DictReader(csv_file)
-        for row in csv_reader:
-            EXPENSES.append(row)
-    pass
 
-
-def read_file(path):
-    """Open csv file in reader mode ("r")."""
-    with open(path, "r") as csv_file:
-        csv_reader = csv.reader(csv_file, delimiter=" ", quotechar="|")
-        for row in csv_reader:
-            print(", ".join(row))
-    return csv_file
-
+# def read_file(path):
+#     """Open csv file in reader mode ("r")."""
+#     with open(path, "r") as csv_file:
+#         csv_reader = csv.reader(csv_file, delimiter=" ", quotechar="|")
+#         for row in csv_reader:
+#             print(", ".join(row))
+#     return csv_file
+#
 
 # csv_file = read_file(PATH_CSV_EXPENSES)
 
 
-def csv_write_expenses(path):
-    """Write expenses to the CSV file, from the list of dictionaries."""
-    with open(path, "w", newline="") as csv_file:
-        fieldnames = [
-            "id",
-            "amount",
-            "category",
-            "description",
-            "timestamp",
-        ]
-        # csv_writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
-        # csv_writer.writeheader()
-        # for expense in EXPENSES:
-        #     csv_writer.writerow(expense)
-    pass
+# def csv_write_expenses(path):
+#     """Write expenses to the CSV file, from the list of dictionaries."""
+#     with open(path, "w", newline="") as csv_file:
+#         fieldnames = [
+#             "id",
+#             "amount",
+#             "category",
+#             "description",
+#             "timestamp",
+#         ]
+#         # csv_writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+#         # csv_writer.writeheader()
+#         # for expense in EXPENSES:
+#         #     csv_writer.writerow(expense)
+#     pass
 
 
-def app_add_write_expense(amount, category, description):
-    expense = {
-        "id": str(uuid.uuid4()),
-        "amount": amount,
-        "category": category,
-        "description": description,
-        "timestamp": datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
-    }
-    EXPENSES.append(expense)
-    # csv_write_expenses(PATH_CSV_EXPENSES)
-    pass
-
+# def app_add_write_expense(amount, category, description):
+#     expense = {
+#         "id": str(uuid.uuid4()),
+#         "amount": amount,
+#         "category": category,
+#         "description": description,
+#         "timestamp": datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
+#     }
+#     EXPENSES.append(expense)
+#     # csv_write_expenses(PATH_CSV_EXPENSES)
+#     pass
+#
 
 # Read expenses from the CSV file and store them in the list of expenses.
 # csv_read_store_expenses(PATH_CSV_EXPENSES)
@@ -199,7 +199,7 @@ async def ping(ctx, target=None):
 ###############################################################################
 
 
-@bot.command(name="add-expense")
+@bot.command(name="addexpense")
 async def add_expense(ctx, amount: float, category: str, description: str):
     """Add a new expense to your budget."""
     expense = {
@@ -222,7 +222,7 @@ async def add_expense(ctx, amount: float, category: str, description: str):
     await ctx.send(f"New expense added: {CURRENCY}{amount} in {category} category")
 
 
-@bot.command(name="view-expense")
+@bot.command(name="viewexpense")
 async def view_expense(ctx):
     """View a rnadom expense in your budget."""
     rand = random.choice(range(0, len(EXPENSES)))
@@ -233,6 +233,37 @@ async def view_expense(ctx):
                 f"Random expense: {expense['description']} - {expense['amount']}{CURRENCY}"
             )
         counter += 1
+
+
+@bot.command(name="deleteexpense")
+async def delete_expense(ctx, keyword=None):
+    user_id = ctx.author.id
+    expenses = db.get_expenses(user_id=user_id)
+    if keyword is None:
+        counter = 0
+        await ctx.send(f"Select the (row) to delete")
+        for row in expenses:
+            await ctx.send(f"({counter}). {str(row)}")
+            counter += 1
+        pass
+
+        row_index = await bot.wait_for(
+            "message", check=lambda message: message.author == ctx.author
+        )
+        expense = expenses[row_index]
+        uuid = (expense)["uuid"]
+        print(row_index, uuid, expense)
+        row_to_delete = (
+            f"{expense['category']}: {expense['amount']} - {expense['description']}"
+        )
+        ctx.send(f"""Deleting: {row_to_delete}\nAre you sure?""")
+        is_ok_delete = await bot.wait_for(
+            "message", check=lambda message: message.author == ctx.author
+        )
+        if is_ok_delete:
+            if db.delete_expense(user_id=user_id, uuid=uuid):
+                await ctx.send(f"Deleted {row_to_delete}")
+    pass
 
 
 # matches = [e for e in expenses if keyword.lower() in str(e).lower]
@@ -262,7 +293,7 @@ async def search_expenses(ctx, keyword: str):
     pass
 
 
-@bot.command(name="view-expenses")
+@bot.command(name="viewexpenses")
 async def view_expenses(ctx):
     """View all expenses in your budget."""
     expenses = db.get_expenses(user_id=ctx.author.id)

@@ -42,9 +42,9 @@ class DBHelper:
             )
         pass
 
-    def delete_expense(self, uuid, user_id):
+    def delete_expense(self, user_id, uuid):
         with self.conn:
-            print(uuid, user_id)
+            print(user_id, uuid)
         pass
 
     def get_expenses(self, user_id):
