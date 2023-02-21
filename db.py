@@ -52,3 +52,10 @@ class DBHelper:
                 (uuid, user_id, amount, category, description),
             )
         pass
+
+    def get_expenses(self, user_id):
+        with self.conn:
+            c = self.conn.cursor()
+            stmt = """SELECT * FROM expenses WHERE user_id=?"""
+            c.execute(stmt, (user_id,))  # Use `,` if only one tuple kind of field.
+            return c.fetchall()
