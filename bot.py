@@ -55,8 +55,7 @@ INCOME = []
 
 db = DBHelper()
 db.setup()
-bot = commands.Bot(command_prefix="/",
-                   description=DESCRIPTION, intents=intents)
+bot = commands.Bot(command_prefix="/", description=DESCRIPTION, intents=intents)
 
 ###############################################################################
 
@@ -175,8 +174,7 @@ def ping_subprocess(target_host):
     backticks (```) to indicate code block formatting in Discord.
     """
     cmd = ["ping", "-c", ping_limit_count, target_host]  # Ping 6 times.
-    process = subprocess.Popen(
-        cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output, error = process.communicate()
 
     if error:
@@ -215,11 +213,11 @@ async def add_expense(ctx, amount: float, category: str, description: str):
     EXPENSES.append(expense)
     # csv_write_expenses(PATH_CSV_EXPENSES)
     db.add_expense(
-        ctx.author.id,
-        expense["amount"],
-        expense["category"],
+        uuid=expense["id"],
+        user_id=ctx.author.id,
+        amount=expense["amount"],
+        category=expense["category"],
         description=expense["description"],
-        date=expense["timestamp"],
     )
     await ctx.send(f"New expense added: {CURRENCY}{amount} in {category} category")
 
