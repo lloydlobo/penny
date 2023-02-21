@@ -54,10 +54,11 @@ INCOME = []
 
 db = DBHelper()
 db.setup()
-bot = commands.Bot(command_prefix="/", description=DESCRIPTION, intents=intents)
+bot = commands.Bot(command_prefix="/",
+                   description=DESCRIPTION,
+                   intents=intents)
 
 ###############################################################################
-
 
 # def csv_read_store_expenses(path):
 #     """
@@ -72,7 +73,6 @@ bot = commands.Bot(command_prefix="/", description=DESCRIPTION, intents=intents)
 #             EXPENSES.append(row)
 #     pass
 
-
 # def read_file(path):
 #     """Open csv file in reader mode ("r")."""
 #     with open(path, "r") as csv_file:
@@ -83,7 +83,6 @@ bot = commands.Bot(command_prefix="/", description=DESCRIPTION, intents=intents)
 #
 
 # csv_file = read_file(PATH_CSV_EXPENSES)
-
 
 # def csv_write_expenses(path):
 #     """Write expenses to the CSV file, from the list of dictionaries."""
@@ -100,7 +99,6 @@ bot = commands.Bot(command_prefix="/", description=DESCRIPTION, intents=intents)
 #         # for expense in EXPENSES:
 #         #     csv_writer.writerow(expense)
 #     pass
-
 
 # def app_add_write_expense(amount, category, description):
 #     expense = {
@@ -191,7 +189,9 @@ def ping_subprocess(target_host):
     backticks (```) to indicate code block formatting in Discord.
     """
     cmd = ["ping", "-c", ping_limit_count, target_host]  # Ping 6 times.
-    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    process = subprocess.Popen(cmd,
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
     output, error = process.communicate()
 
     if error:
@@ -236,7 +236,8 @@ async def add_expense(ctx, amount: float, category: str, description: str):
         category=expense["category"],
         description=expense["description"],
     )
-    await ctx.send(f"New expense added: {CURRENCY}{amount} in {category} category")
+    await ctx.send(
+        f"New expense added: {CURRENCY}{amount} in {category} category")
 
 
 # @bot.command(name="viewexpense")
@@ -281,7 +282,8 @@ async def delete_expense(ctx, keyword=None):
         )
 
         if (is_ok_delete.content).lower() in ["Y", "y"]:
-            if db.delete_expense(user_id=ctx.author.id, uuid=(expenses[index])[0]):
+            if db.delete_expense(user_id=ctx.author.id,
+                                 uuid=(expenses[index])[0]):
                 await ctx.send(f"Deleted {row_to_delete}")
         else:
             await ctx.send(f"Error: Something went wrong")
@@ -303,8 +305,7 @@ async def search_expenses(ctx, keyword: str):
         count = len(matches)
         if count == 1:
             await ctx.send(
-                f"```@expenses: {count} result found for {keyword}\n{body}```"
-            )
+                f"```@expenses: {count} result found for {keyword}\n{body}```")
         else:
             await ctx.send(
                 f"```@expenses: {count} results found for {keyword}\n{body}```"
