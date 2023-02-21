@@ -266,14 +266,18 @@ async def view_expenses(ctx):
     if len(EXPENSES) == 0:
         await ctx.send("No expenses recorded")
     else:
-        total = 0
-        for expense in EXPENSES:
-            total += float(expense["amount"])
-            await ctx.send(
-                f"[{expense['timestamp']}] {expense['category']}: {CURRENCY}{expense['amount']} - {expense['description']}"
-            )
-        await ctx.send(f"Total expenses: {str(total)}{CURRENCY}")
-        # await ctx.send(f"Your Expenses \n{str(expenses)}")
+        user_id = ctx.author.id
+        get_expenses = db.get_expenses(user_id=user_id)
+        await ctx.send(f"""```@expenses```{get_expenses}""")
+    # else:
+    #     total = 0
+    #     for expense in EXPENSES:
+    #         total += float(expense["amount"])
+    #         await ctx.send(
+    #             f"[{expense['timestamp']}] {expense['category']}: {CURRENCY}{expense['amount']} - {expense['description']}"
+    #         )
+    #     await ctx.send(f"Total expenses: {str(total)}{CURRENCY}")
+    #     # await ctx.send(f"Your Expenses \n{str(expenses)}")
 
 
 ###############################################################################
