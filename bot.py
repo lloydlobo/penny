@@ -265,14 +265,13 @@ async def view_expenses(ctx):
     expenses = db.get_expenses(user_id=ctx.author.id)
 
     pretty = []
-    total, counter = 0, 0
+    total = 0
     for e in expenses:
-        date, category, amount, description = e[6], e[3], e[2], e[4]
-        pretty.append(" ".join([date, category, "- ".join(amount), description]))
+        date, category, amount, description = e[5], e[3], e[2], e[4]
+        pretty.append(" ".join([date, category, str(amount), description]))
         total += float(amount)
-        counter += 1
 
-    print(pretty)
+    counter = len(pretty)
     pretty_expenses = "\n".join(pretty)
     await ctx.send(f"Total expenses({str(counter)}): {str(total)}{CURRENCY}")
     await ctx.send(f"""```@expenses\n{pretty_expenses}```""")
