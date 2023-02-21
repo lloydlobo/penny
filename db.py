@@ -51,7 +51,8 @@ class DBHelper:
         with self.conn:
             c = self.conn.cursor()
             stmt = """SELECT * FROM expenses WHERE user_id=?"""
-            c.execute(stmt, (user_id,))  # Use `,` if only one tuple kind of field.
+            c.execute(stmt, (user_id,)
+                      )  # Use `,` if only one tuple kind of field.
             return c.fetchall()
 
     # We need to search each row for a term.
@@ -59,22 +60,17 @@ class DBHelper:
     def search_expense(self, user_id, keyword):
         with self.conn:
             expenses = self.get_expenses(user_id=user_id)
-            print(expenses)
+            # matches = []
+            # for row in expenses:
+            #     if keyword.lower() in str(row).lower():
+            #         matches.append(row)
+            matches = [row for row in expenses if keyword.lower()
+                       in str(row).lower()]
 
-            matches_data, matches_pretty, total = [], [], 0
-            for row in expenses:
-                date, category, amount, description = row[5], row[3], row[2], row[4]
-                expense = " ".join([date, category, str(amount), description])
-                if keyword.lower() in str(expense).lower():
-                    total += float(amount)
-                    matches_data.append(row)
-                    matches_pretty.append(expense)
-                pass
-
-            if len(matches_pretty) == 0:
+            if len(matches) == 0:
                 return None
             else:
-                return matches_pretty
+                return matches
 
 
 # pretty, total = [], 0

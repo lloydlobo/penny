@@ -54,7 +54,8 @@ INCOME = []
 
 db = DBHelper()
 db.setup()
-bot = commands.Bot(command_prefix="/", description=DESCRIPTION, intents=intents)
+bot = commands.Bot(command_prefix="/",
+                   description=DESCRIPTION, intents=intents)
 
 ###############################################################################
 
@@ -172,7 +173,8 @@ def ping_subprocess(target_host):
     backticks (```) to indicate code block formatting in Discord.
     """
     cmd = ["ping", "-c", ping_limit_count, target_host]  # Ping 6 times.
-    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    process = subprocess.Popen(
+        cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output, error = process.communicate()
 
     if error:
@@ -238,17 +240,26 @@ async def view_expense(ctx):
 @bot.command(name="searchexpenses")
 async def search(ctx, keyword: str):
     matches = db.search_expense(user_id=ctx.author.id, keyword=keyword)
-    if matches is not None:
-        count = len(matches)
-        body = "\n".join(matches)
-        await ctx.send(
-            f"""```@expenses
-            {count} results found for keyword matching {keyword}
-            {body}
-            ```"""
-        )
-    else:
+    if matches is None:
         await ctx.send("No expenses matching '{keyword}' found")
+    else:
+        matches_pretty = []
+        for row in matches:
+            date, category, amount, description = row[5], row[3], row[2], row[4]
+            expense = " ".join([date, category, str(amount), description])
+            matches_pretty.append(expense)
+
+        body = "\n".join(matches_pretty)
+        count = len(matches)
+        if count == 1:
+            await ctx.send(
+                f"```@expenses: {count} result found for {keyword}\n{body}```"
+            )
+        else:
+            await ctx.send(
+                f"```@expenses: {count} results found for {keyword}\n{body}```"
+            )
+    pass
 
 
 @bot.command(name="search-expenses")
